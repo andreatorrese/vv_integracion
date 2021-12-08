@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.practica.integracion.DAO.*;
 import com.practica.integracion.manager.SystemManager;
+import com.practica.integracion.manager.SystemManagerException;
 
 @ExtendWith(MockitoExtension.class)
 public class TestValidUser {
@@ -41,6 +42,7 @@ public class TestValidUser {
 	  // vemos si se ejecutan las llamadas a los dao, y en el orden correcto
 	  ordered.verify(mockAuthDao).getAuthData(validUser.getId());
 	  ordered.verify(mockGenericDao).getSomeData(validUser, "where id=" + validId);
+	  
 	}*/
 	
 /*	@Test //test de StopRemoteSystem() valido
@@ -64,5 +66,49 @@ public class TestValidUser {
 	  ordered.verify(mockGenericDao).getSomeData(validUser, "where id=" + validId);
 	}
 */
+	
+	
+	@Test public void testAddRemoteSystem() throws Exception {
+		
+		
+		User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
+		when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(validUser);
+		String newname = "Luis";
+	   
+		
+		 when(mockGenericDao.updateSomeData(validUser, newname)).thenReturn(true);
+		 
+		 InOrder ordered = inOrder(mockAuthDao, mockGenericDao);
+		 SystemManager manager = new SystemManager(mockAuthDao, mockGenericDao);
+		 manager.addRemoteSystem(validUser.getId(), newname);
+		 
+		 verify(mockAuthDao, times(1)).getAuthData(validUser.getId());
+		 verify(mockGenericDao, times(1)).updateSomeData(validUser, newname);
+		 
+		 ordered.verify(mockAuthDao).getAuthData(validUser.getId());
+		 ordered.verify(mockGenericDao).updateSomeData(validUser, newname);
+		 
+		 assertEquals(validUser.getFirstName(), newname);
+		 
+	}
+	
+@Test public void testAddRemoteSystemFalse() throws Exception {
+		
+		
+		User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
+		when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(validUser);
+		String newname = "Luis";
+	   
+		
+		 when(mockGenericDao.updateSomeData(validUser, newname)).thenReturn(false);
+		 
+		 InOrder ordered = inOrder(mockAuthDao, mockGenericDao);
+		 SystemManager manager = new SystemManager(mockAuthDao, mockGenericDao);
+		
+		 
+		 
+		 
+		 assertThrows(SystemManagerException.class, ()->{manager.addRemoteSystem(validUser.getId(), newname);});
+	}
 
 }

@@ -47,7 +47,7 @@ public class TestInvalidUser {
 	  ordered.verify(mockGenericDao).getSomeData(null, "where id=" + validId);
 	}*/
 	
-/*	@Test //test de StopRemoteSystem() invalido
+	/*@Test //test de StopRemoteSystem() invalido
 	public void testStopRemoteSystemWithValidUserAndSystem() throws Exception {
 	  User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
 	  when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(null);
@@ -66,4 +66,21 @@ public class TestInvalidUser {
 	  ordered.verify(mockAuthDao).getAuthData(validUser.getId());
 	  ordered.verify(mockGenericDao).getSomeData(null, "where id=" + validId);
 	}*/
+	
+@Test public void testAddRemoteSystem() throws Exception {
+		
+		
+		User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
+		when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(null);
+		String newname = "Luis";
+		OperationNotSupportedException Invalido = new OperationNotSupportedException();
+		
+		 when(mockGenericDao.updateSomeData(null, newname)).thenThrow(Invalido);
+		 InOrder ordered = inOrder(mockAuthDao, mockGenericDao);
+		 SystemManager manager = new SystemManager(mockAuthDao, mockGenericDao);
+		
+		 
+		 assertThrows(SystemManagerException.class, ()->{manager.addRemoteSystem(validUser.getId(), newname);});
+	}
+	
 }
