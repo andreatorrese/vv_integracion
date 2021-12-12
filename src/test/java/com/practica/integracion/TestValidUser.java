@@ -11,19 +11,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.practica.integracion.DAO.*;
 import com.practica.integracion.manager.SystemManager;
 import com.practica.integracion.manager.SystemManagerException;
 
 @ExtendWith(MockitoExtension.class)
+
 public class TestValidUser {
 	@Mock
 	private static AuthDAO mockAuthDao;
 	@Mock
 	private static GenericDAO mockGenericDao;
 	
-/*	@Test //test de StartRemoteSystem() valido
+	@Test //test de StartRemoteSystem() valido
 	public void testStartRemoteSystemWithValidUserAndSystem() throws Exception {
 	  User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
 	  when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(validUser);
@@ -43,9 +46,9 @@ public class TestValidUser {
 	  ordered.verify(mockAuthDao).getAuthData(validUser.getId());
 	  ordered.verify(mockGenericDao).getSomeData(validUser, "where id=" + validId);
 	  
-	}*/
+	}
 	
-/*	@Test //test de StopRemoteSystem() valido
+	@Test //test de StopRemoteSystem() valido
 	public void testStopRemoteSystemWithValidUserAndSystem() throws Exception {
 	  User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
 	  when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(validUser);
@@ -65,7 +68,7 @@ public class TestValidUser {
 	  ordered.verify(mockAuthDao).getAuthData(validUser.getId());
 	  ordered.verify(mockGenericDao).getSomeData(validUser, "where id=" + validId);
 	}
-*/
+
 	
 	
 	@Test public void testAddRemoteSystem() throws Exception {
@@ -88,6 +91,7 @@ public class TestValidUser {
 		 ordered.verify(mockAuthDao).getAuthData(validUser.getId());
 		 ordered.verify(mockGenericDao).updateSomeData(validUser, newname);
 		 
+		 
 		 assertEquals(validUser.getFirstName(), newname);
 		 
 	}
@@ -106,9 +110,33 @@ public class TestValidUser {
 		 SystemManager manager = new SystemManager(mockAuthDao, mockGenericDao);
 		
 		 
-		 
-		 
 		 assertThrows(SystemManagerException.class, ()->{manager.addRemoteSystem(validUser.getId(), newname);});
 	}
+
+
+
+@Test
+public void testDeleteRemoteSystemWithValidUserAndSystem() throws Exception {
+	User validUser = new User("1","Ana","Lopez","Madrid", new ArrayList<Object>(Arrays.asList(1, 2)));
+	String validId = "1";
+	
+
+	Mockito.lenient().when(mockAuthDao.getAuthData(validUser.getId())).thenReturn(validUser);
+	
+	Mockito.lenient().when(mockGenericDao.deleteSomeData(validUser, validId)).thenReturn(true);
+	
+	InOrder ordered = inOrder(mockAuthDao, mockGenericDao);
+	
+	SystemManager manager = new SystemManager(mockAuthDao, mockGenericDao);
+
+	manager.deleteRemoteSystem(validUser.getId(), validId);
+	
+	ordered.verify(mockAuthDao).getAuthData(validUser.getId());
+	ordered.verify(mockGenericDao).deleteSomeData(validUser, validId);
+	
+
+	verify(mockGenericDao, times(1)).deleteSomeData(validUser,validId);
+	
+}
 
 }
